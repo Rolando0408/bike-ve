@@ -147,14 +147,13 @@ export default function Home() {
                 {isLoadingRates ? (
                   <span className="text-xs text-green-400 font-mono">...</span>
                 ) : (
-                  <span className="text-xs text-green-400 font-mono flex items-center">
-                    Bs <NumericFormat 
-                      value={bcvCompraRate} 
-                      onValueChange={values => setBcvCompraRate(values.value)}
-                      decimalSeparator=","
-                      className="bg-transparent w-[60px] text-right outline-none border-b border-dashed border-green-500/40 focus:border-green-400 ml-1 pb-0.5 transition-colors"
-                    />
-                  </span>
+                  <NumericFormat 
+                    value={bcvCompraRate} 
+                    onValueChange={values => setBcvCompraRate(values.value)}
+                    decimalSeparator=","
+                    prefix="Bs "
+                    className="bg-transparent w-[80px] text-right outline-none border-b border-dashed border-green-500/40 focus:border-green-400 pb-0.5 transition-colors text-xs text-green-400 font-mono"
+                  />
                 )}
               </div>
             </div>
@@ -165,14 +164,13 @@ export default function Home() {
                 {isLoadingRates ? (
                   <p className="text-sm text-white font-mono text-right leading-none">...</p>
                 ) : (
-                  <div className="text-sm text-white font-mono flex items-center leading-none">
-                    Bs <NumericFormat 
-                      value={binanceP2PRate} 
-                      onValueChange={values => setBinanceP2PRate(values.value)}
-                      decimalSeparator=","
-                      className="bg-transparent w-[65px] text-right outline-none border-b border-dashed border-neutral-600 focus:border-white ml-1 pb-0.5 transition-colors"
-                    />
-                  </div>
+                  <NumericFormat 
+                    value={binanceP2PRate} 
+                    onValueChange={values => setBinanceP2PRate(values.value)}
+                    decimalSeparator=","
+                    prefix="Bs "
+                    className="bg-transparent w-[90px] text-right outline-none border-b border-dashed border-neutral-600 focus:border-white pb-0.5 transition-colors text-sm text-white font-mono leading-none"
+                  />
                 )}
                 {!isLoadingRates && numBcvCompra > 0 && (
                   <span className={`text-[9px] font-black border border-neutral-700 px-1.5 py-0.5 rounded bg-neutral-900 mt-0.5 ${gapPct > 0 ? 'text-green-400' : 'text-red-400'}`}>
