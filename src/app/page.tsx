@@ -319,6 +319,14 @@ export default function Home() {
         </div>
       </motion.div>
       
+      {/* Sección SEO Oculta / Discreta */}
+      <div className="w-full max-w-md mt-10 mb-2 px-4 opacity-50 hover:opacity-100 transition-opacity">
+        <h2 className="text-[10px] font-bold text-neutral-600 uppercase mb-1">Acerca de esta calculadora</h2>
+        <p className="text-[9px] text-neutral-600 text-justify leading-relaxed">
+          Bike VE es una herramienta de <strong>arbitraje financiero</strong> diseñada para Venezuela. Permite calcular con exactitud la brecha y rentabilidad entre la tasa oficial del <strong>Banco Central de Venezuela (BCV)</strong> y el mercado <strong>Binance P2P (USDT)</strong>. Analiza automáticamente las comisiones bancarias, márgenes de pasarela y tasas de cambio en tiempo real para optimizar tu conversión de bolívares a dólares.
+        </p>
+      </div>
+
       {/* Footer Profesional */}
       <motion.div 
         initial={{ opacity: 0 }}
