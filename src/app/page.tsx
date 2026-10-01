@@ -124,6 +124,7 @@ export default function Home() {
             <button 
               onClick={() => fetchRates(true)}
               disabled={isLoadingRates}
+              aria-label="Actualizar tasas"
               className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 text-neutral-400 ${isLoadingRates ? 'animate-spin' : ''}`} />
@@ -165,18 +166,20 @@ export default function Home() {
           {/* Monto principal */}
           <div>
             <div className="flex justify-between items-end mb-2">
-              <label className="text-sm font-medium text-neutral-400">Capital Disponible</label>
+              <label htmlFor="capital-input" className="text-sm font-medium text-neutral-400">Capital Disponible</label>
               
               {/* Toggle de Moneda */}
-              <div className="flex bg-neutral-950 rounded-lg p-1 border border-neutral-800">
+              <div className="flex bg-neutral-950 rounded-lg p-1 border border-neutral-800" role="group" aria-label="Seleccionar moneda">
                 <button
                   onClick={() => handleModeSwitch('VES')}
+                  aria-pressed={inputMode === 'VES'}
                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${inputMode === 'VES' ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
                 >
                   VES
                 </button>
                 <button
                   onClick={() => handleModeSwitch('USD')}
+                  aria-pressed={inputMode === 'USD'}
                   className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${inputMode === 'USD' ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
                 >
                   USD
@@ -185,7 +188,7 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
                 {inputMode === 'VES' ? (
                   <span className="text-neutral-500 font-bold">Bs</span>
                 ) : (
@@ -193,6 +196,7 @@ export default function Home() {
                 )}
               </div>
               <NumericFormat
+                id="capital-input"
                 value={amount}
                 onValueChange={(values) => setAmount(values.value)}
                 thousandSeparator="."
@@ -207,23 +211,25 @@ export default function Home() {
           {/* Comisiones (Acordeón visual simple) */}
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div>
-              <label className="text-[10px] font-bold tracking-wider text-neutral-500 block mb-1">COM. BANCO (%)</label>
+              <label htmlFor="bank-comm-input" className="text-[10px] font-bold tracking-wider text-neutral-400 block mb-1">COM. BANCO (%)</label>
               <input
+                id="bank-comm-input"
                 type="number"
                 value={bankCommissionPct}
                 onChange={(e) => setBankCommissionPct(e.target.value)}
-                className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-neutral-600 transition-all text-center"
+                className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/50 transition-all text-center"
                 placeholder="2.5"
                 step="0.1"
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold tracking-wider text-neutral-500 block mb-1">PASARELA (%)</label>
+              <label htmlFor="gateway-comm-input" className="text-[10px] font-bold tracking-wider text-neutral-400 block mb-1">PASARELA (%)</label>
               <input
+                id="gateway-comm-input"
                 type="number"
                 value={gatewayCommissionPct}
                 onChange={(e) => setGatewayCommissionPct(e.target.value)}
-                className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-neutral-600 transition-all text-center"
+                className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/50 transition-all text-center"
                 placeholder="4.1"
                 step="0.1"
               />
