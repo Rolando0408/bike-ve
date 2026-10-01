@@ -25,8 +25,9 @@ function AnimatedNumber({ value, prefix = '', suffix = '', decimals = 2, classNa
 
 export default function Home() {
   const [isLoadingRates, setIsLoadingRates] = useState(true);
-  const [bcvRate, setBcvRate] = useState(0);
-  const [binanceRate, setBinanceRate] = useState(0);
+  const [bcvRate, setBcvRate] = useState(0); // Para display visual
+  const [bcvCompraRate, setBcvCompraRate] = useState<string>('0');
+  const [binanceP2PRate, setBinanceP2PRate] = useState<string>('0');
 
   // Estados del formulario
   const [inputMode, setInputMode] = useState<'VES' | 'USD'>('VES');
@@ -43,8 +44,13 @@ export default function Home() {
         fetch('/api/binance').then(r => r.json())
       ]);
       
-      if (bcvRes.success) setBcvRate(bcvRes.rate);
-      if (binanceRes.success) setBinanceRate(binanceRes.averageRate);
+      if (bcvRes.success) {
+        setBcvRate(bcvRes.rate);
+        setBcvCompraRate((bcvRes.rate * 1.005).toFixed(2));
+      }
+      if (binanceRes.success) {
+        setBinanceP2PRate(binanceRes.averageRate.toFixed(2));
+      }
     } catch (error) {
       console.error("Error al refrescar tasas", error);
     }
@@ -61,7 +67,7 @@ export default function Home() {
     if (newMode === inputMode) return;
     
     const currentVal = parseFloat(amount) || 0;
-    const bcvCompra = bcvRate * 1.005; // Tasa oficial + 0.5% (fijo)
+    const bcvCompra = parseFloat(bcvCompraRate) || (bcvRate * 1.005);
     
     if (newMode === 'USD' && inputMode === 'VES') {
       // De VES (Saldo total en cuenta) a equivalente en USD (Saldo total en cuenta)
@@ -78,23 +84,21 @@ export default function Home() {
   // Calculamos los resultados en tiempo real (durante el render)
   const numAmount = parseFloat(amount) || 0;
   const numBankComm = parseFloat(bankCommissionPct) || 0;
-  const numExchMargin = 0.5; // Fijo (0.5%) según requerimiento
   const numGateComm = parseFloat(gatewayCommissionPct) || 0;
+  const numBcvCompra = parseFloat(bcvCompraRate) || 0;
+  const numBinanceRate = parseFloat(binanceP2PRate) || 0;
 
   const results = calculateArbitrage({
     inputMode,
     amount: numAmount,
-    bcvRate,
-    binanceRate,
+    tasaCompraEfectiva: numBcvCompra,
+    binanceRate: numBinanceRate,
     bankCommissionPct: numBankComm,
-    exchangeMarginPct: numExchMargin,
     gatewayCommissionPct: numGateComm,
   });
 
-  // Tasa de compra efectiva (BCV + spread mesa)
-  const bcvCompra = bcvRate * (1 + (numExchMargin / 100));
   // Diferencia porcentual entre lo que me cuesta el dólar vs en cuánto lo vendo en P2P
-  const gapPct = bcvCompra > 0 ? ((binanceRate - bcvCompra) / bcvCompra) * 100 : 0;
+  const gapPct = numBcvCompra > 0 ? ((numBinanceRate - numBcvCompra) / numBcvCompra) * 100 : 0;
 
   // Si hay ganancias, encendemos el neón
   const isProfitable = results.gananciaNetaVES > 0;
@@ -139,19 +143,39 @@ export default function Home() {
                 <span className="text-xs text-neutral-300 font-mono">{isLoadingRates ? '...' : `Bs ${bcvRate.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-green-400 font-bold tracking-wide">COMPRA (+0.5%)</span>
-                <span className="text-xs text-green-400 font-mono">{isLoadingRates ? '...' : `Bs ${bcvCompra.toFixed(2)}`}</span>
+                <span className="text-[10px] text-green-400 font-bold tracking-wide">COMPRA</span>
+                {isLoadingRates ? (
+                  <span className="text-xs text-green-400 font-mono">...</span>
+                ) : (
+                  <span className="text-xs text-green-400 font-mono flex items-center">
+                    Bs <NumericFormat 
+                      value={bcvCompraRate} 
+                      onValueChange={values => setBcvCompraRate(values.value)}
+                      decimalSeparator=","
+                      className="bg-transparent w-[60px] text-right outline-none border-b border-dashed border-green-500/40 focus:border-green-400 ml-1 pb-0.5 transition-colors"
+                    />
+                  </span>
+                )}
               </div>
             </div>
             
             <div className="flex-[1] bg-neutral-950/50 rounded-xl p-3 border border-neutral-800/50 flex flex-col justify-center">
               <p className="text-[10px] text-neutral-500 mb-1 font-bold tracking-wide text-right">BINANCE P2P</p>
               <div className="flex flex-col items-end gap-1">
-                <p className="text-sm text-white font-mono text-right leading-none">
-                  {isLoadingRates ? '...' : `Bs ${binanceRate.toFixed(2)}`}
-                </p>
-                {!isLoadingRates && bcvRate > 0 && (
-                  <span className={`text-[9px] font-black border border-neutral-700 px-1.5 py-0.5 rounded bg-neutral-900 ${gapPct > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {isLoadingRates ? (
+                  <p className="text-sm text-white font-mono text-right leading-none">...</p>
+                ) : (
+                  <div className="text-sm text-white font-mono flex items-center leading-none">
+                    Bs <NumericFormat 
+                      value={binanceP2PRate} 
+                      onValueChange={values => setBinanceP2PRate(values.value)}
+                      decimalSeparator=","
+                      className="bg-transparent w-[65px] text-right outline-none border-b border-dashed border-neutral-600 focus:border-white ml-1 pb-0.5 transition-colors"
+                    />
+                  </div>
+                )}
+                {!isLoadingRates && numBcvCompra > 0 && (
+                  <span className={`text-[9px] font-black border border-neutral-700 px-1.5 py-0.5 rounded bg-neutral-900 mt-0.5 ${gapPct > 0 ? 'text-green-400' : 'text-red-400'}`}>
                     BRECHA {gapPct > 0 ? '+' : ''}{gapPct.toFixed(2)}%
                   </span>
                 )}
@@ -212,26 +236,24 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div>
               <label htmlFor="bank-comm-input" className="text-[10px] font-bold tracking-wider text-neutral-400 block mb-1">COM. BANCO (%)</label>
-              <input
+              <NumericFormat
                 id="bank-comm-input"
-                type="number"
                 value={bankCommissionPct}
-                onChange={(e) => setBankCommissionPct(e.target.value)}
+                onValueChange={(values) => setBankCommissionPct(values.value)}
+                decimalSeparator=","
                 className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/50 transition-all text-center"
-                placeholder="2.5"
-                step="0.1"
+                placeholder="2,5"
               />
             </div>
             <div>
               <label htmlFor="gateway-comm-input" className="text-[10px] font-bold tracking-wider text-neutral-400 block mb-1">PASARELA (%)</label>
-              <input
+              <NumericFormat
                 id="gateway-comm-input"
-                type="number"
                 value={gatewayCommissionPct}
-                onChange={(e) => setGatewayCommissionPct(e.target.value)}
+                onValueChange={(values) => setGatewayCommissionPct(values.value)}
+                decimalSeparator=","
                 className="w-full bg-neutral-950 border border-neutral-800 text-white text-sm font-mono rounded-xl py-2 px-2 focus:outline-none focus:border-green-500/50 focus:ring-1 focus:ring-green-500/50 transition-all text-center"
-                placeholder="4.1"
-                step="0.1"
+                placeholder="4,1"
               />
             </div>
           </div>
@@ -279,7 +301,7 @@ export default function Home() {
                   />
                   <span className={`text-[10px] font-mono font-bold ${isProfitable ? 'text-green-500/70' : 'text-neutral-500'}`}>
                     {results.gananciaNetaVES > 0 ? '+' : ''}
-                    {binanceRate > 0 ? (results.gananciaNetaVES / binanceRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'} USDT $
+                    {numBinanceRate > 0 ? (results.gananciaNetaVES / numBinanceRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'} USDT $
                   </span>
                 </div>
               </div>

@@ -2,10 +2,9 @@
 export interface CalculatorInputs {
   inputMode: 'VES' | 'USD';
   amount: number;
-  bcvRate: number;
+  tasaCompraEfectiva: number;
   binanceRate: number;
   bankCommissionPct: number;      // ej: 2.5 para 2.5%
-  exchangeMarginPct: number;      // ej: 0.5 para 0.5%
   gatewayCommissionPct: number;   // ej: 4.1 para 4.1%
 }
 
@@ -26,15 +25,14 @@ export function calculateArbitrage(inputs: CalculatorInputs): CalculatorResults 
   const {
     inputMode,
     amount,
-    bcvRate,
+    tasaCompraEfectiva,
     binanceRate,
     bankCommissionPct,
-    exchangeMarginPct,
     gatewayCommissionPct,
   } = inputs;
 
   // Si no hay monto o tasas, retornamos ceros para no romper la UI
-  if (!amount || !bcvRate || !binanceRate) {
+  if (!amount || !tasaCompraEfectiva || !binanceRate) {
     return {
       usdComprados: 0,
       totalDebitadoVES: 0,
@@ -48,7 +46,6 @@ export function calculateArbitrage(inputs: CalculatorInputs): CalculatorResults 
   let totalDebitadoVES = 0;
   let totalDebitadoUSD = 0;
   
-  const tasaCompraEfectiva = bcvRate * (1 + exchangeMarginPct / 100);
   const bankCommFactor = 1 + (bankCommissionPct / 100);
   const gatewayFactor = 1 - (gatewayCommissionPct / 100);
 
