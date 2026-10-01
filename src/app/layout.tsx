@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bike VE | Calculadora de Arbitraje",
     description: "Calculadora avanzada para optimizar tus finanzas, arbitraje y conversión de bolívares a USDT.",
-    url: "https://bike-ve.vercel.app",
+    url: "https://bike-ve-three.vercel.app",
     siteName: "Bike VE",
     locale: "es_VE",
     type: "website",

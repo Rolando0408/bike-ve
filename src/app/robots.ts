@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://bike-ve.vercel.app/sitemap.xml',
+    sitemap: 'https://bike-ve-three.vercel.app/sitemap.xml',
   }
 }
