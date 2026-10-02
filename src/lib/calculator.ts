@@ -16,6 +16,7 @@ export interface CalculatorResults {
   vesRetorno: number;
   gananciaNetaVES: number;
   roiPorcentaje: number;
+  montoBinanceUSD: number;
 }
 
 /**
@@ -40,6 +41,7 @@ export function calculateArbitrage(inputs: CalculatorInputs): CalculatorResults 
       vesRetorno: 0,
       gananciaNetaVES: 0,
       roiPorcentaje: 0,
+      montoBinanceUSD: 0,
     };
   }
 
@@ -81,5 +83,6 @@ export function calculateArbitrage(inputs: CalculatorInputs): CalculatorResults 
     vesRetorno,
     gananciaNetaVES,
     roiPorcentaje,
+    montoBinanceUSD: bankChargeUSD, // Monto exacto a colocar en la interfaz de Binance
   };
 }

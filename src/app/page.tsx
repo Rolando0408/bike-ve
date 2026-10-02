@@ -264,16 +264,32 @@ export default function Home() {
           <div className="space-y-3 mb-6">
             <div className="flex justify-between items-center text-sm">
               <span className="text-neutral-500 flex items-center gap-2">
-                <Wallet className="w-4 h-4" /> Inversión Total
+                <Wallet className="w-4 h-4" /> Inversión Inicial
               </span>
               <div className="text-right">
                 <AnimatedNumber value={results.totalDebitadoVES} prefix="Bs " className="text-white font-mono block leading-tight" />
                 <span className="text-[10px] text-neutral-500 font-mono">~ {results.usdComprados.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD $</span>
               </div>
             </div>
+            <div className="flex justify-between items-center text-sm border-l-2 border-neutral-800 pl-3 ml-2">
+              <span className="text-neutral-500 flex items-center gap-2">
+                <DollarSign className="w-4 h-4" /> A recargar en Binance
+              </span>
+              <div className="text-right">
+                <AnimatedNumber value={results.montoBinanceUSD} suffix=" USD $" decimals={2} className="text-white font-mono block leading-tight" />
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-sm border-l-2 border-neutral-800 pl-3 ml-2">
+              <span className="text-neutral-500 flex items-center gap-2">
+                <Wallet className="w-4 h-4" /> USDT Recibidos
+              </span>
+              <div className="text-right">
+                <AnimatedNumber value={results.usdtRecibidos} suffix=" USDT" decimals={2} className="text-white font-mono block leading-tight" />
+              </div>
+            </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-neutral-500 flex items-center gap-2">
-                <ArrowRightLeft className="w-4 h-4" /> Recuperado (P2P)
+                <ArrowRightLeft className="w-4 h-4" /> Recuperado al vender (P2P)
               </span>
               <div className="text-right">
                 <AnimatedNumber value={results.vesRetorno} prefix="Bs " className="text-white font-mono block leading-tight" />
