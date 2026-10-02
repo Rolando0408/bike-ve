@@ -16,7 +16,7 @@ export async function GET() {
       proMerchantAds: false, // Permitimos que entren todos (verificados y no verificados) para mejor tasa
       shieldMerchantAds: false,
       publisherType: null,
-      payTypes: ['PagoMovil'], // Filtro estricto por Pago Móvil (el más rápido y común)
+      payTypes: ['PagoMovil', 'BancoDeVenezuela', 'Banesco', 'Mercantil', 'Provincial', 'BNC'], // Filtro ampliado para incluir transferencias directas a bancos principales (mejora la tasa)
       classifies: ['mass', 'profession', 'tier1', 'tier2'],
     };
 
