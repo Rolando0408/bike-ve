@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
-import { RefreshCw, TrendingUp, Wallet, ArrowRightLeft, DollarSign } from 'lucide-react';
+import { RefreshCw, TrendingUp, Wallet, ArrowRightLeft, DollarSign, HelpCircle } from 'lucide-react';
 import { calculateArbitrage } from '@/lib/calculator';
 import { NumericFormat } from 'react-number-format';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 
 /** 
  * Componente para animar números de forma fluida (Premium UI)
@@ -35,6 +37,7 @@ export default function Home() {
   const [amount, setAmount] = useState<string>('10000');
   const [bankCommissionPct, setBankCommissionPct] = useState<string>('2.5');
   const [gatewayCommissionPct, setGatewayCommissionPct] = useState<string>('4.1');
+  const [resultCurrency, setResultCurrency] = useState<'VES' | 'USD'>('VES');
 
   const fetchRates = async (isManualRefresh = false) => {
     if (isManualRefresh) setIsLoadingRates(true);
@@ -103,6 +106,25 @@ export default function Home() {
   // Si hay ganancias, encendemos el neón
   const isProfitable = results.gananciaNetaVES > 0;
 
+  const startTour = () => {
+    const driverObj = driver({
+      showProgress: true,
+      animate: true,
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
+      doneBtnText: 'Terminar',
+      steps: [
+        { element: '#tour-tasas', popover: { title: 'Tasas de Cambio', description: 'Aquí se muestran las tasas oficiales de BCV y Binance. Se actualizan automáticamente.', side: 'bottom', align: 'start' } },
+        { element: '#tour-capital', popover: { title: 'Capital Disponible', description: 'Ingresa el monto de tu inversión inicial.', side: 'bottom', align: 'start' } },
+        { element: '#tour-moneda', popover: { title: 'Selección de Moneda', description: 'Alterna entre Bolívares (VES) y Dólares (USD).', side: 'bottom', align: 'start' } },
+        { element: '#tour-comisiones', popover: { title: 'Comisiones', description: 'Ajusta la comisión que te cobra tu banco y la pasarela de pago.', side: 'top', align: 'start' } },
+        { element: '#tour-resultados', popover: { title: 'Detalle del Ciclo', description: 'Aquí se desglosa el flujo: cuánto se te debita, cuánto llega a Binance, y cuánto obtienes al vender en P2P.', side: 'top', align: 'start' } },
+        { element: '#tour-final', popover: { title: 'Resultado Final y ROI', description: 'Muestra tu ganancia neta, el ROI y el Total Final. Usa el interruptor para ver este total en Bs o en $ BCV compra.', side: 'top', align: 'start' } }
+      ]
+    });
+    driverObj.drive();
+  };
+
   return (
     <main className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 font-sans text-neutral-200">
       
@@ -125,18 +147,27 @@ export default function Home() {
               <TrendingUp className="text-green-400 w-5 h-5" />
               Bike VE
             </h1>
-            <button 
-              onClick={() => fetchRates(true)}
-              disabled={isLoadingRates}
-              aria-label="Actualizar tasas"
-              className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 text-neutral-400 ${isLoadingRates ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={startTour}
+                aria-label="Iniciar Tour"
+                className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition-colors"
+              >
+                <HelpCircle className="w-4 h-4 text-neutral-400" />
+              </button>
+              <button 
+                onClick={() => fetchRates(true)}
+                disabled={isLoadingRates}
+                aria-label="Actualizar tasas"
+                className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-full transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 text-neutral-400 ${isLoadingRates ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
 
           {/* Tasas minimalistas */}
-          <div className="flex gap-3 relative">
+          <div id="tour-tasas" className="flex gap-3 relative">
             <div className="flex-[1.2] bg-neutral-950/50 rounded-xl p-3 border border-neutral-800/50 flex flex-col justify-center">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-[10px] text-neutral-500 font-bold tracking-wide">BCV BASE</span>
@@ -186,12 +217,12 @@ export default function Home() {
         <div className="p-6 space-y-5">
           
           {/* Monto principal */}
-          <div>
+          <div id="tour-capital">
             <div className="flex justify-between items-end mb-2">
               <label htmlFor="capital-input" className="text-sm font-medium text-neutral-400">Capital Disponible</label>
               
               {/* Toggle de Moneda */}
-              <div className="flex bg-neutral-950 rounded-lg p-1 border border-neutral-800" role="group" aria-label="Seleccionar moneda">
+              <div id="tour-moneda" className="flex bg-neutral-950 rounded-lg p-1 border border-neutral-800" role="group" aria-label="Seleccionar moneda">
                 <button
                   onClick={() => handleModeSwitch('VES')}
                   aria-pressed={inputMode === 'VES'}
@@ -231,7 +262,7 @@ export default function Home() {
           </div>
 
           {/* Comisiones (Acordeón visual simple) */}
-          <div className="grid grid-cols-2 gap-4 pt-2">
+          <div id="tour-comisiones" className="grid grid-cols-2 gap-4 pt-2">
             <div>
               <label htmlFor="bank-comm-input" className="text-[10px] font-bold tracking-wider text-neutral-400 block mb-1">COM. BANCO (%)</label>
               <NumericFormat
@@ -258,7 +289,7 @@ export default function Home() {
         </div>
 
         {/* --- PANEL DE RESULTADOS --- */}
-        <div className="bg-neutral-950 p-6 border-t border-neutral-800/50 relative overflow-hidden">
+        <div id="tour-resultados" className="bg-neutral-950 p-6 border-t border-neutral-800/50 relative overflow-hidden">
           
           {/* Detalles del ciclo */}
           <div className="space-y-3 mb-6">
@@ -300,28 +331,59 @@ export default function Home() {
 
           {/* Resultado Final (Ganancia y ROI) */}
           <motion.div 
+            id="tour-final"
             className={`rounded-2xl p-5 border ${isProfitable ? 'bg-green-500/10 border-green-500/30' : 'bg-neutral-900 border-neutral-800'} transition-colors duration-500`}
           >
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-start mb-4">
               <div>
-                <p className={`text-xs font-bold tracking-wider mb-1 ${isProfitable ? 'text-green-400' : 'text-neutral-500'}`}>
-                  GANANCIA NETA
+                <p className={`text-[10px] font-bold tracking-wider mb-1 ${isProfitable ? 'text-green-400' : 'text-neutral-500'}`}>
+                  TOTAL FINAL
                 </p>
-                <div className="flex flex-col items-start gap-0.5">
-                  <AnimatedNumber 
-                    value={results.gananciaNetaVES} 
-                    prefix={results.gananciaNetaVES > 0 ? '+Bs ' : 'Bs '} 
-                    className={`text-3xl font-black tracking-tight leading-none ${isProfitable ? 'text-green-400' : 'text-white'}`} 
-                  />
-                  <span className={`text-[10px] font-mono font-bold ${isProfitable ? 'text-green-500/70' : 'text-neutral-500'}`}>
-                    {results.gananciaNetaVES > 0 ? '+' : ''}
-                    {numBinanceRate > 0 ? (results.gananciaNetaVES / numBinanceRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'} USDT $
-                  </span>
-                </div>
+                <AnimatedNumber 
+                  value={resultCurrency === 'VES' ? results.vesRetorno : (numBcvCompra > 0 ? results.vesRetorno / numBcvCompra : 0)} 
+                  prefix={resultCurrency === 'VES' ? 'Bs ' : '$ '} 
+                  className={`text-3xl font-black tracking-tight leading-none text-white`} 
+                />
               </div>
               
+              {/* Tab selector */}
+              <div className="flex bg-neutral-950/50 rounded-lg p-0.5 border border-neutral-800" role="group">
+                <button
+                  onClick={() => setResultCurrency('VES')}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${resultCurrency === 'VES' ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                >
+                  Bs
+                </button>
+                <button
+                  onClick={() => setResultCurrency('USD')}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition-colors ${resultCurrency === 'USD' ? 'bg-neutral-800 text-white' : 'text-neutral-500 hover:text-neutral-300'}`}
+                >
+                  $ BCV (Compra)
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-end border-t border-neutral-800/50 pt-3">
+              <div>
+                <p className={`text-[10px] font-bold tracking-wider mb-1 ${isProfitable ? 'text-green-400/80' : 'text-neutral-500'}`}>
+                  GANANCIA NETA
+                </p>
+                <div className="flex items-center gap-2">
+                  <AnimatedNumber 
+                    value={resultCurrency === 'VES' ? results.gananciaNetaVES : (numBcvCompra > 0 ? results.gananciaNetaVES / numBcvCompra : 0)} 
+                    prefix={results.gananciaNetaVES > 0 ? (resultCurrency === 'VES' ? '+Bs ' : '+$ ') : (resultCurrency === 'VES' ? 'Bs ' : '$ ')} 
+                    className={`text-xl font-bold tracking-tight leading-none ${isProfitable ? 'text-green-400' : 'text-white'}`} 
+                  />
+                  {resultCurrency === 'VES' && numBinanceRate > 0 && (
+                    <span className={`text-[10px] font-mono font-bold ${isProfitable ? 'text-green-500/70' : 'text-neutral-500'}`}>
+                      ~ {(results.gananciaNetaVES / numBinanceRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <div className="text-right">
-                <p className="text-xs font-bold tracking-wider text-neutral-500 mb-1">ROI</p>
+                <p className="text-[10px] font-bold tracking-wider text-neutral-500 mb-1">ROI</p>
                 <AnimatedNumber 
                   value={results.roiPorcentaje} 
                   prefix={results.roiPorcentaje > 0 ? '+' : ''}
