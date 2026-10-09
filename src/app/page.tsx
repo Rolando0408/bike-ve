@@ -34,7 +34,7 @@ export default function Home() {
   // Estados del formulario
   const [inputMode, setInputMode] = useState<'VES' | 'USD'>('VES');
   // Usamos el string sin formato que nos da la librería (ej: "10000.50")
-  const [amount, setAmount] = useState<string>('10000');
+  const [amount, setAmount] = useState<string>('');
   const [bankCommissionPct, setBankCommissionPct] = useState<string>('2.5');
   const [gatewayCommissionPct, setGatewayCommissionPct] = useState<string>('4.1');
 
@@ -68,7 +68,14 @@ export default function Home() {
   const handleModeSwitch = (newMode: 'VES' | 'USD') => {
     if (newMode === inputMode) return;
     
-    const currentVal = parseFloat(amount) || 0;
+    // Si el campo está vacío o es 0, lo mantenemos vacío
+    if (!amount || parseFloat(amount) === 0) {
+      setAmount('');
+      setInputMode(newMode);
+      return;
+    }
+
+    const currentVal = parseFloat(amount);
     const bcvCompra = parseFloat(bcvCompraRate) || (bcvRate * 1.005);
     
     if (newMode === 'USD' && inputMode === 'VES') {
@@ -316,7 +323,7 @@ export default function Home() {
                 <DollarSign className="w-4 h-4 text-neutral-400" />
               </div>
               <div className="flex-1 pt-0.5">
-                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5 truncate">Paso 2: Monto exacto a recargar en BINANCE</p>
+                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5">Paso 2: Monto exacto a recargar en BINANCE</p>
                 <div className="flex items-end gap-1.5 whitespace-nowrap">
                   <AnimatedNumber value={results.montoBinanceUSD} prefix="$ " decimals={2} className="text-white font-mono text-lg font-bold leading-none truncate" />
                   <span className="text-neutral-500 text-[10px] font-bold pb-0.5 shrink-0">USD</span>
@@ -330,7 +337,7 @@ export default function Home() {
                 <CircleDollarSign className="w-4 h-4 text-neutral-400" />
               </div>
               <div className="flex-1 pt-0.5">
-                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5 truncate">Paso 3: USDT que recibes en Binance</p>
+                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5">Paso 3: USDT que recibes en Binance</p>
                 <div className="flex items-end gap-1.5 whitespace-nowrap">
                   <AnimatedNumber value={results.usdtRecibidos} decimals={2} className="text-white font-mono text-lg font-bold leading-none truncate" />
                   <span className="text-neutral-500 text-[10px] font-bold pb-0.5 shrink-0">USDT</span>
@@ -344,7 +351,7 @@ export default function Home() {
                 <ArrowRightLeft className="w-4 h-4 text-neutral-400" />
               </div>
               <div className="flex-1 pt-0.5">
-                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5 truncate">Paso 4: Venta en P2P y Retorno</p>
+                <p className="text-[11px] text-neutral-500 font-bold tracking-wider uppercase mb-0.5">Paso 4: Venta en P2P y Retorno</p>
                 <div className="flex items-end gap-1.5 whitespace-nowrap">
                   <AnimatedNumber value={results.vesRetorno} prefix="Bs " className="text-white font-mono text-lg font-bold leading-none truncate" />
                   <span className="text-neutral-500 text-[10px] font-bold pb-0.5 shrink-0">VES</span>
@@ -373,10 +380,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Doble visualización equitativa */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-1.5 mb-1.5 whitespace-nowrap">
+            {/* Doble visualización equitativa (Apilados) */}
+            <div className="flex flex-col gap-3">
+              <div className="overflow-hidden bg-neutral-950/50 rounded-xl p-4 border border-neutral-800/50">
+                <div className="flex items-center gap-1.5 mb-2 whitespace-nowrap">
                   <div className="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></div>
                   <p className="text-[10px] text-neutral-400 font-bold tracking-wider truncate">VES</p>
                 </div>
@@ -384,17 +391,17 @@ export default function Home() {
                   <AnimatedNumber 
                     value={results.gananciaNetaVES} 
                     prefix={results.gananciaNetaVES > 0 ? '+Bs ' : 'Bs '} 
-                    className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${isProfitable ? 'text-green-400' : 'text-white'}`} 
+                    className={`text-2xl sm:text-3xl font-black tracking-tight leading-none truncate ${isProfitable ? 'text-green-400' : 'text-white'}`} 
                   />
-                  <div className="mt-2 text-[10px] text-neutral-500 font-mono flex flex-col">
+                  <div className="mt-3 pt-3 border-t border-neutral-800/50 text-[11px] text-neutral-500 font-mono flex items-center justify-between">
                     <span>Total final:</span>
-                    <AnimatedNumber value={results.vesRetorno} prefix="Bs " className="text-neutral-400 truncate" />
+                    <AnimatedNumber value={results.vesRetorno} prefix="Bs " className="text-neutral-400 truncate font-bold" />
                   </div>
                 </div>
               </div>
               
-              <div className="pl-4 border-l border-neutral-800/50 overflow-hidden">
-                <div className="flex items-center gap-1.5 mb-1.5 whitespace-nowrap">
+              <div className="overflow-hidden bg-neutral-950/50 rounded-xl p-4 border border-neutral-800/50">
+                <div className="flex items-center gap-1.5 mb-2 whitespace-nowrap">
                   <div className="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></div>
                   <p className="text-[10px] text-neutral-400 font-bold tracking-wider truncate">USD (BCV COMPRA)</p>
                 </div>
@@ -403,11 +410,11 @@ export default function Home() {
                     value={numBcvCompra > 0 ? results.gananciaNetaVES / numBcvCompra : 0} 
                     prefix={results.gananciaNetaVES > 0 ? '+$ ' : '$ '}
                     decimals={2}
-                    className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${isProfitable ? 'text-green-400' : 'text-white'}`} 
+                    className={`text-2xl sm:text-3xl font-black tracking-tight leading-none truncate ${isProfitable ? 'text-green-400' : 'text-white'}`} 
                   />
-                  <div className="mt-2 text-[10px] text-neutral-500 font-mono flex flex-col">
+                  <div className="mt-3 pt-3 border-t border-neutral-800/50 text-[11px] text-neutral-500 font-mono flex items-center justify-between">
                     <span>Total final:</span>
-                    <AnimatedNumber value={numBcvCompra > 0 ? results.vesRetorno / numBcvCompra : 0} prefix="$ " decimals={2} className="text-neutral-400 truncate" />
+                    <AnimatedNumber value={numBcvCompra > 0 ? results.vesRetorno / numBcvCompra : 0} prefix="$ " decimals={2} className="text-neutral-400 truncate font-bold" />
                   </div>
                 </div>
               </div>
